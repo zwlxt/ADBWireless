@@ -21,7 +21,7 @@ public class ShellUtils {
      */
     public static boolean execute(String command) {
         try {
-            Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec("su -c " + command);
             return process.exitValue() == 0;
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,7 +36,7 @@ public class ShellUtils {
      */
     public static String executeForOutput(String command) {
         try {
-            Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec("su -c " + command);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             StringBuilder stringBuilder = new StringBuilder();
