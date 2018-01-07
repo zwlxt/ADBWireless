@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                 }
             });
-        }).run();
+        }).start();
     }
 
     private int getDefinedPort() {
