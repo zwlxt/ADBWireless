@@ -52,38 +52,38 @@ public class MainActivity extends AppCompatActivity {
 
     private void setListeningStatus(boolean status) {
         if (status) {
-            textViewListeningStatus.setText("Yes");
+            textViewListeningStatus.setText(R.string.yes);
             textViewListeningStatus.setTextColor(Color.GREEN);
 
-            buttonAction.setText("Stop ADB");
+            buttonAction.setText(R.string.stop_adb);
             buttonAction.setOnClickListener(v -> controlADB(false));
         } else {
-            textViewListeningStatus.setText("No");
+            textViewListeningStatus.setText(R.string.no);
             textViewListeningStatus.setTextColor(Color.RED);
 
-            buttonAction.setText("Start ADB");
+            buttonAction.setText(R.string.start_adb);
             buttonAction.setOnClickListener(v -> controlADB(true));
         }
     }
 
     private void setActiveStatus(boolean status) {
         if (status) {
-            textViewActiveStatus.setText("Yes");
+            textViewActiveStatus.setText(R.string.yes);
             textViewActiveStatus.setTextColor(Color.GREEN);
         } else {
-            textViewActiveStatus.setText("No");
+            textViewActiveStatus.setText(R.string.no);
             textViewActiveStatus.setTextColor(Color.RED);
         }
     }
 
     private void setInstructionText(String ip, int port) {
-        final String instructionTemplate = "Run this command on computer:\nadb connect %s:%d";
+        final String instructionTemplate = getString(R.string.instruction_on);
         textViewInstruction.setText(String.format(Locale.getDefault(),
                 instructionTemplate, ip, port));
     }
 
     private void setInstructionText() {
-        textViewInstruction.setText("Connect to WiFi then tap on Start button");
+        textViewInstruction.setText(R.string.instruction_off);
     }
 
     private void updateStatus() {

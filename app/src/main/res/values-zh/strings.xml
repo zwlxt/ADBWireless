@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ADB Over the Air</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="instruction_off">连接到WiFi后按下启动按钮</string>
+    <string name="instruction_on">在电脑上运行以下命令\n adb connect %s:%d</string>
+    <string name="stop_adb">关闭ADB</string>
+    <string name="start_adb">启动ADB</string>
+</resources>
