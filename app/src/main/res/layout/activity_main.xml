@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_marginBottom="16dp"
-                android:text="[Instruction]"
+                android:text="@string/dots"
                 android:textAlignment="center"
                 android:textSize="12sp" />
 
@@ -73,7 +73,7 @@
                         android:id="@+id/textview_listneing_status"
                         android:layout_width="wrap_content"
                         android:layout_gravity="end|center_vertical"
-                        android:text="[status]"
+                        android:text="@string/dots"
                         android:textColor="#000000" />
                 </TableRow>
 
@@ -92,7 +92,7 @@
                         android:id="@+id/textview_active_status"
                         android:layout_width="wrap_content"
                         android:layout_gravity="end|center_vertical"
-                        android:text="[status]"
+                        android:text="@string/dots"
                         android:textColor="#000000" />
                 </TableRow>
 
@@ -111,7 +111,7 @@
                         android:id="@+id/textview_address"
                         android:layout_width="wrap_content"
                         android:layout_gravity="end|center_vertical"
-                        android:text="[address]"
+                        android:text="@string/dots"
                         android:textColor="#000000" />
                 </TableRow>
 
@@ -140,12 +140,12 @@
 
                     <Button
                         android:id="@+id/button_start_stop"
+                        style="@style/Widget.AppCompat.Button.Colored"
                         android:layout_width="match_parent"
                         android:layout_marginTop="16dp"
                         android:layout_span="3"
-                        android:text="[Enable/Disable]"
                         android:foreground="?attr/selectableItemBackground"
-                        style="@style/Widget.AppCompat.Button.Colored" />
+                        android:text="@string/dots" />
                 </TableRow>
             </TableLayout>
         </android.support.v7.widget.CardView>
