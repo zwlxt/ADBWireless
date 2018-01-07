@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
         textViewInstruction.setText(R.string.instruction_off);
     }
 
-    private void updateStatus() {
+    @OnClick(R.id.button_refresh)
+    public void updateStatus() {
         new Thread(() -> {
             int status = ADBUtils.getStatus();
             runOnUiThread(() -> {
