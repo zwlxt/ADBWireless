@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -25,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.edit_port)
     EditText editPort;
+
+    @BindView(R.id.textview_instruction)
+    TextView textViewInstruction;
 
     @BindView(R.id.button_start_stop)
     Button buttonAction;
@@ -64,6 +69,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setInstructionText(String ip, int port) {
+        final String instructionTemplate = "Run this command on computer:\nadb connect %s:%d";
+        textViewInstruction.setText(String.format(Locale.getDefault(),
+                instructionTemplate, ip, port));
+    }
+
+    private void setInstructionText() {
+        textViewInstruction.setText("Connect to WiFi then tap on Start button");
+    }
+
     private void updateStatus() {
         new Thread(() -> {
             int status = ADBUtils.getStatus();
@@ -73,20 +88,24 @@ public class MainActivity extends AppCompatActivity {
                     ipAddress = ADBUtils.getAddress(MainActivity.this);
                 } else {
                     ipAddress = "WiFi is not connected";
+                    setInstructionText();
                 }
                 textViewAddress.setText(ipAddress);
                 switch (status) {
                     case 0:
                         setListeningStatus(false);
                         setActiveStatus(false);
+                        setInstructionText();
                         break;
                     case 1:
                         setListeningStatus(true);
                         setActiveStatus(false);
+                        setInstructionText(ipAddress, getDefinedPort());
                         break;
                     case 3:
                         setListeningStatus(true);
                         setActiveStatus(true);
+                        setInstructionText(ipAddress, getDefinedPort());
                         break;
                     default:
                 }
@@ -94,18 +113,20 @@ public class MainActivity extends AppCompatActivity {
         }).run();
     }
 
+    private int getDefinedPort() {
+        String portString = editPort.getEditableText().toString();
+        try {
+            return Integer.valueOf(portString);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     private void controlADB(boolean newState) {
         new Thread(() -> {
             if (newState) {
-                String portString = editPort.getEditableText().toString();
-                int port;
-                try {
-                    port = Integer.valueOf(portString);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                ADBUtils.start(port);
+                ADBUtils.start(getDefinedPort());
             } else {
                 ADBUtils.stop();
             }
