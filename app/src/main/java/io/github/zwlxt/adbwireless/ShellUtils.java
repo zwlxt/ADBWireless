@@ -3,7 +3,6 @@ package io.github.zwlxt.adbwireless;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
@@ -22,8 +21,9 @@ public class ShellUtils {
     public static boolean execute(String command) {
         try {
             Process process = Runtime.getRuntime().exec("su -c " + command);
+            process.waitFor();
             return process.exitValue() == 0;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
@@ -44,9 +44,10 @@ public class ShellUtils {
                 Log.d(TAG, "executeForOutput: " + line);
                 stringBuilder.append(line);
             }
+            process.waitFor();
             reader.close();
             return stringBuilder.toString();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
