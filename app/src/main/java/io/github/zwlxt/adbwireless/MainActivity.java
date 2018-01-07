@@ -35,23 +35,46 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        refreshStatus();
+        updateStatus();
     }
 
     private void setListeningStatus(boolean status) {
-        textViewListeningStatus.setText(status ? "Yes" : "No");
-        textViewListeningStatus.setTextColor(status ? Color.GREEN : Color.RED);
+        if (status) {
+            textViewListeningStatus.setText("Yes");
+            textViewListeningStatus.setTextColor(Color.GREEN);
+
+            buttonAction.setText("Stop ADB");
+            buttonAction.setOnClickListener(v -> controlADB(false));
+        } else {
+            textViewListeningStatus.setText("No");
+            textViewListeningStatus.setTextColor(Color.RED);
+
+            buttonAction.setText("Start ADB");
+            buttonAction.setOnClickListener(v -> controlADB(true));
+        }
     }
 
     private void setActiveStatus(boolean status) {
-        textViewActiveStatus.setText(status ? "Yes" : "No");
-        textViewActiveStatus.setTextColor(status ? Color.GREEN : Color.RED);
+        if (status) {
+            textViewActiveStatus.setText("Yes");
+            textViewActiveStatus.setTextColor(Color.GREEN);
+        } else {
+            textViewActiveStatus.setText("No");
+            textViewActiveStatus.setTextColor(Color.RED);
+        }
     }
 
-    private void refreshStatus() {
+    private void updateStatus() {
         new Thread(() -> {
-            int status = ADBUtils.status();
+            int status = ADBUtils.getStatus();
             runOnUiThread(() -> {
+                String ipAddress;
+                if (ADBUtils.isWifiConnected(MainActivity.this)) {
+                    ipAddress = ADBUtils.getAddress(MainActivity.this);
+                } else {
+                    ipAddress = "WiFi is not connected";
+                }
+                textViewAddress.setText(ipAddress);
                 switch (status) {
                     case 0:
                         setListeningStatus(false);
@@ -68,6 +91,25 @@ public class MainActivity extends AppCompatActivity {
                     default:
                 }
             });
+        }).run();
+    }
+
+    private void controlADB(boolean newState) {
+        new Thread(() -> {
+            if (newState) {
+                String portString = editPort.getEditableText().toString();
+                int port;
+                try {
+                    port = Integer.valueOf(portString);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                ADBUtils.start(port);
+            } else {
+                ADBUtils.stop();
+            }
+            updateStatus();
         }).run();
     }
 }

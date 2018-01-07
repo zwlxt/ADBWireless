@@ -18,22 +18,13 @@ public class ADBUtils {
     private static final String TAG = "ADBUtils";
 
     /**
-     * Set the port where adbd listens at
-     *
-     * @param port port
-     * @return true when success, otherwise false
-     */
-    public static boolean setPort(int port) {
-        return ShellUtils.execute("setprop service.adb.tcp.port " + port);
-    }
-
-    /**
      * Start adbd
      *
      * @return true when success
      */
-    public static boolean start() {
+    public static boolean start(int port) {
         stop();
+        ShellUtils.execute("setprop service.adb.tcp.port " + port);
         return ShellUtils.execute("start adbd");
     }
 
