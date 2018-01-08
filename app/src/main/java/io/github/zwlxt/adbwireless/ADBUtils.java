@@ -42,7 +42,7 @@ public class ADBUtils {
      *
      * @return 0 -> disabled; 1 -> listening; 2 -> connection is active; 3 -> 1 + 2
      */
-    public static int getStatus(int port) {
+    private static int getStatus(int port) {
         String output = ShellUtils.executeForOutput("sh -c 'netstat -tln | grep :" + port + "'");
         if (output == null)
             return 0;
@@ -62,7 +62,7 @@ public class ADBUtils {
      *
      * @return port number
      */
-    public static int getPort() {
+    private static int getPort() {
         String output = ShellUtils.executeForOutput("getprop service.adb.tcp.port");
         try {
             return Integer.parseInt(output);
@@ -78,7 +78,7 @@ public class ADBUtils {
      * @param context context
      * @return ip address string
      */
-    public static String getAddress(Context context) {
+    private static String getAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         if (wifiInfo == null) {
@@ -99,10 +99,30 @@ public class ADBUtils {
      * @param context context
      * @return true when connected to wifi
      */
-    public static boolean isWifiConnected(Context context) {
+    private static boolean isWifiConnected(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    public static ADBState getState(Context context) {
+        int port = ADBUtils.getPort();
+        int status = ADBUtils.getStatus(port);
+        String ipAddress;
+        boolean connectedToWifi;
+        if (ADBUtils.isWifiConnected(context)) {
+            ipAddress = ADBUtils.getAddress(context);
+            connectedToWifi = true;
+        } else {
+            ipAddress = context.getString(R.string.wifi_not_connected);
+            connectedToWifi = false;
+        }
+        ADBState state = new ADBState();
+        state.setAddress(ipAddress);
+        state.setConnectedToWifi(connectedToWifi);
+        state.setStatus(status);
+        state.setPort(port);
+        return state;
     }
 }

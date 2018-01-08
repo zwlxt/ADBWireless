@@ -18,6 +18,8 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private final String KEY_STATE = "ADB_STATE";
+    private ADBState savedState;
 
     @BindView(R.id.textview_listneing_status)
     TextView textViewListeningStatus;
@@ -48,7 +50,12 @@ public class MainActivity extends AppCompatActivity {
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
-        updateStatus();
+        if (savedInstanceState != null) {
+            ADBState adbState = (ADBState) savedInstanceState.getSerializable(KEY_STATE);
+            savedState = adbState;
+            updateView(adbState);
+        } else
+            updateStatus();
     }
 
     private void setListeningStatus(boolean status) {
@@ -87,41 +94,19 @@ public class MainActivity extends AppCompatActivity {
         textViewInstruction.setText(R.string.instruction_off);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (savedState != null)
+            outState.putSerializable(KEY_STATE, savedState);
+        super.onSaveInstanceState(outState);
+    }
+
     @OnClick(R.id.button_refresh)
     public void updateStatus() {
         new Thread(() -> {
-            int port = ADBUtils.getPort();
-            int status = ADBUtils.getStatus(port);
-            runOnUiThread(() -> {
-                String ipAddress;
-                if (ADBUtils.isWifiConnected(MainActivity.this)) {
-                    ipAddress = ADBUtils.getAddress(MainActivity.this);
-                } else {
-                    ipAddress = getString(R.string.wifi_not_connected);
-                    setInstructionText();
-                }
-                if (port != 0)
-                    editPort.setText(String.valueOf(port));
-                textViewAddress.setText(ipAddress);
-                switch (status) {
-                    case 0:
-                        setListeningStatus(false);
-                        setActiveStatus(false);
-                        setInstructionText();
-                        break;
-                    case 1:
-                        setListeningStatus(true);
-                        setActiveStatus(false);
-                        setInstructionText(ipAddress, getDefinedPort());
-                        break;
-                    case 3:
-                        setListeningStatus(true);
-                        setActiveStatus(true);
-                        setInstructionText(ipAddress, getDefinedPort());
-                        break;
-                    default:
-                }
-            });
+            ADBState state = ADBUtils.getState(MainActivity.this);
+            savedState = state;
+            runOnUiThread(() -> updateView(state));
         }).start();
     }
 
@@ -144,5 +129,31 @@ public class MainActivity extends AppCompatActivity {
             }
             updateStatus();
         }).run();
+    }
+
+    private void updateView(ADBState model) {
+        if (model.getPort() != 0)
+            editPort.setText(String.valueOf(model.getPort()));
+        textViewAddress.setText(model.getAddress());
+        if (!model.isConnectedToWifi())
+            setInstructionText();
+        switch (model.getStatus()) {
+            case 0:
+                setListeningStatus(false);
+                setActiveStatus(false);
+                setInstructionText();
+                break;
+            case 1:
+                setListeningStatus(true);
+                setActiveStatus(false);
+                setInstructionText(model.getAddress(), getDefinedPort());
+                break;
+            case 3:
+                setListeningStatus(true);
+                setActiveStatus(true);
+                setInstructionText(model.getAddress(), getDefinedPort());
+                break;
+            default:
+        }
     }
 }
