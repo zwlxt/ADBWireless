@@ -91,12 +91,13 @@ public class MainActivity extends AppCompatActivity {
     public void updateStatus() {
         new Thread(() -> {
             int status = ADBUtils.getStatus();
+
             runOnUiThread(() -> {
                 String ipAddress;
                 if (ADBUtils.isWifiConnected(MainActivity.this)) {
                     ipAddress = ADBUtils.getAddress(MainActivity.this);
                 } else {
-                    ipAddress = "WiFi is not connected";
+                    ipAddress = getString(R.string.wifi_not_connected);
                     setInstructionText();
                 }
                 textViewAddress.setText(ipAddress);
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private int getDefinedPort() {
         String portString = editPort.getEditableText().toString();
         try {
-            return Integer.valueOf(portString);
+            return Integer.parseInt(portString);
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return 0;
