@@ -42,8 +42,8 @@ public class ADBUtils {
      *
      * @return 0 -> disabled; 1 -> listening; 2 -> connection is active; 3 -> 1 + 2
      */
-    public static int getStatus() {
-        String output = ShellUtils.executeForOutput("sh -c 'netstat -tln | grep 5555'");
+    public static int getStatus(int port) {
+        String output = ShellUtils.executeForOutput("sh -c 'netstat -tln | grep :" + port + "'");
         if (output == null)
             return 0;
 
@@ -58,9 +58,24 @@ public class ADBUtils {
     }
 
     /**
+     * Get port number predefined in adb
+     *
+     * @return port number
+     */
+    public static int getPort() {
+        String output = ShellUtils.executeForOutput("getprop service.adb.tcp.port");
+        try {
+            return Integer.parseInt(output);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
      * Get wifi IP address
      *
-     * @param context
+     * @param context context
      * @return ip address string
      */
     public static String getAddress(Context context) {
@@ -78,6 +93,12 @@ public class ADBUtils {
                 (ipAddress >> 24 & 0xff)); // https://stackoverflow.com/a/8796997/8817846
     }
 
+    /**
+     * Check wifi connectivity status
+     *
+     * @param context context
+     * @return true when connected to wifi
+     */
     public static boolean isWifiConnected(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

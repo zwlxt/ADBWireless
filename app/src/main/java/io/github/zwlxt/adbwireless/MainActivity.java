@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button_refresh)
     public void updateStatus() {
         new Thread(() -> {
-            int status = ADBUtils.getStatus();
-
+            int port = ADBUtils.getPort();
+            int status = ADBUtils.getStatus(port);
             runOnUiThread(() -> {
                 String ipAddress;
                 if (ADBUtils.isWifiConnected(MainActivity.this)) {
@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
                     ipAddress = getString(R.string.wifi_not_connected);
                     setInstructionText();
                 }
+                if (port != 0)
+                    editPort.setText(String.valueOf(port));
                 textViewAddress.setText(ipAddress);
                 switch (status) {
                     case 0:
