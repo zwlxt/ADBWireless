@@ -1,8 +1,13 @@
 package io.github.zwlxt.adbwireless;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private final String KEY_STATE = "ADB_STATE";
+    private final String NOTIF_CHAN = "Adb status";
+    private final int NOTIF_ID = 1;
     private ADBState savedState;
 
     @BindView(R.id.textview_listneing_status)
@@ -50,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
+        showNotification(true);
         if (savedInstanceState != null) {
             ADBState adbState = (ADBState) savedInstanceState.getSerializable(KEY_STATE);
             savedState = adbState;
@@ -154,6 +162,23 @@ public class MainActivity extends AppCompatActivity {
                 setInstructionText(model.getAddress(), getDefinedPort());
                 break;
             default:
+        }
+    }
+
+    private void showNotification(boolean visibility) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager == null)
+            return;
+        if (visibility) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIF_CHAN)
+                    .setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setContentTitle("ADB is running")
+                    .setContentText("at xxxx");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN, NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(channel);
+            }
+            notificationManager.notify(NOTIF_ID, builder.build());
         }
     }
 }
