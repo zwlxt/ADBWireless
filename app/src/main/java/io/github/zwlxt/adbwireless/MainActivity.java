@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                         .setContentTitle(getString(R.string.adb_is_running))
                         .setContentText(String.format(Locale.getDefault(),
                                 "at %s:%d", state.getAddress(), state.getPort()))
-                        .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                         .setOngoing(true)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
