@@ -1,13 +1,15 @@
 package io.github.zwlxt.adbwireless;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private final String KEY_STATE = "ADB_STATE";
     private final String NOTIF_CHAN = "Adb status";
     private final int NOTIF_ID = 1;
+    private final int NOTIF_REQUEST_CODE = 1;
     private ADBState savedState;
 
     @BindView(R.id.textview_listneing_status)
@@ -57,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
-        showNotification(true);
         if (savedInstanceState != null) {
             ADBState adbState = (ADBState) savedInstanceState.getSerializable(KEY_STATE);
             savedState = adbState;
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             ADBState state = ADBUtils.getState(MainActivity.this);
             savedState = state;
+            setNotification(state);
             runOnUiThread(() -> updateView(state));
         }).start();
     }
@@ -165,20 +168,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showNotification(boolean visibility) {
+    private void setNotification(ADBState state) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager == null)
             return;
-        if (visibility) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIF_CHAN)
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setContentTitle("ADB is running")
-                    .setContentText("at xxxx");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN, NotificationManager.IMPORTANCE_DEFAULT);
-                notificationManager.createNotificationChannel(channel);
-            }
-            notificationManager.notify(NOTIF_ID, builder.build());
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIF_CHAN);
+        switch (state.getStatus()) {
+            case 0:
+
+                break;
+            case 1:
+            case 3:
+                Intent intent = new Intent(this, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                        NOTIF_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                builder.setContentIntent(pendingIntent)
+                        .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
+                        .setContentTitle(getString(R.string.adb_is_running))
+                        .setContentText(String.format(Locale.getDefault(),
+                                "at %s", state.getAddress()))
+                        .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
+                        .setOngoing(true)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN, NotificationManager.IMPORTANCE_DEFAULT);
+                    notificationManager.createNotificationChannel(channel);
+                }
+                Notification notification = builder.build();
+                notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+                notificationManager.notify(NOTIF_ID, notification);
+                break;
         }
+
     }
 }

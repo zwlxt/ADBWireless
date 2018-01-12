@@ -12,4 +12,5 @@
     <string name="address">地址</string>
     <string name="port">端口</string>
     <string name="wifi_not_connected">未连接WiFi</string>
+    <string name="adb_is_running">ADB正在运行</string>
 </resources>

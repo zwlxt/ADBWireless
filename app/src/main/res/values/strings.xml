@@ -12,4 +12,5 @@
     <string name="port">Port</string>
     <string name="dots">…</string>
     <string name="wifi_not_connected">WiFi is not connected</string>
+    <string name="adb_is_running">ADB is running</string>
 </resources>

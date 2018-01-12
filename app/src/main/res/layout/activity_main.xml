@@ -15,7 +15,7 @@
             android:layout_height="60dp"
             android:layout_margin="32dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/header_image" />
+            android:src="@drawable/img_header" />
 
         <RelativeLayout
             android:layout_width="match_parent"
