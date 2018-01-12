@@ -111,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) notificationManager.cancel(NOTIF_ID);
+    }
+
     @OnClick(R.id.button_refresh)
     public void updateStatus() {
         new Thread(() -> {
@@ -169,14 +177,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNotification(ADBState state) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager == null)
             return;
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIF_CHAN);
         switch (state.getStatus()) {
             case 0:
-
+                notificationManager.cancel(NOTIF_ID);
                 break;
             case 1:
             case 3:
@@ -187,12 +196,13 @@ public class MainActivity extends AppCompatActivity {
                         .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                         .setContentTitle(getString(R.string.adb_is_running))
                         .setContentText(String.format(Locale.getDefault(),
-                                "at %s", state.getAddress()))
+                                "at %s:%d", state.getAddress(), state.getPort()))
                         .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                         .setOngoing(true)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN, NotificationManager.IMPORTANCE_DEFAULT);
+                    NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN,
+                            NotificationManager.IMPORTANCE_DEFAULT);
                     notificationManager.createNotificationChannel(channel);
                 }
                 Notification notification = builder.build();
@@ -200,6 +210,5 @@ public class MainActivity extends AppCompatActivity {
                 notificationManager.notify(NOTIF_ID, notification);
                 break;
         }
-
     }
 }
