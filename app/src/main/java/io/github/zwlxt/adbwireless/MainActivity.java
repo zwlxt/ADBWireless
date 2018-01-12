@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private final String NOTIF_CHAN = "Adb status";
     private final int NOTIF_ID = 1;
     private final int NOTIF_REQUEST_CODE = 1;
+    private final String NOTIF_ACTION_CLOSE = "action_close";
     private ADBState savedState;
 
     @BindView(R.id.textview_listneing_status)
@@ -112,6 +113,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getBooleanExtra(NOTIF_ACTION_CLOSE, false)) {
+            controlADB(false);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         NotificationManager notificationManager =
@@ -189,7 +198,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 1:
             case 3:
-                Intent intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(this, MainActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 PendingIntent pendingIntent = PendingIntent.getActivity(this,
                         NOTIF_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
                 builder.setContentIntent(pendingIntent)
@@ -200,6 +210,14 @@ public class MainActivity extends AppCompatActivity {
                         .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                         .setOngoing(true)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                Intent closeIntent = new Intent(this, MainActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        .putExtra(NOTIF_ACTION_CLOSE, true);
+                PendingIntent closePendingIntent = PendingIntent.getActivity(this,
+                        NOTIF_REQUEST_CODE, closeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                builder.addAction(R.drawable.ic_close_black_24dp, "Close", closePendingIntent);
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN,
                             NotificationManager.IMPORTANCE_DEFAULT);
