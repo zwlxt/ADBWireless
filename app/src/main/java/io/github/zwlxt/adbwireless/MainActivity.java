@@ -4,11 +4,14 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private final int NOTIF_CODE_CLOSE = 2;
     private final String NOTIF_ACTION_CLOSE = "action_close";
     private ADBState savedState;
+    private QuickSettingsService.TileServiceBinder tileService;
 
     @BindView(R.id.textview_listneing_status)
     TextView textViewListeningStatus;
@@ -50,6 +54,18 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.button_start_stop)
     Button buttonAction;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            tileService = (QuickSettingsService.TileServiceBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            tileService = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
             updateStatus();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent serviceIntent = new Intent(this, QuickSettingsService.class);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     private void setListeningStatus(boolean status) {
         if (status) {
             textViewListeningStatus.setText(R.string.yes);
@@ -80,12 +103,16 @@ public class MainActivity extends AppCompatActivity {
 
             buttonAction.setText(R.string.stop_adb);
             buttonAction.setOnClickListener(v -> controlADB(false));
+
+            tileService.setState(false);
         } else {
             textViewListeningStatus.setText(R.string.no);
             textViewListeningStatus.setTextColor(Color.RED);
 
             buttonAction.setText(R.string.start_adb);
             buttonAction.setOnClickListener(v -> controlADB(true));
+
+            tileService.setState(true);
         }
     }
 
@@ -121,6 +148,8 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         if (intent.getBooleanExtra(NOTIF_ACTION_CLOSE, false)) {
             controlADB(false);
+        } else {
+            updateStatus();
         }
     }
 
@@ -169,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         textViewAddress.setText(model.getAddress());
         if (!model.isConnectedToWifi())
             setInstructionText();
-        switch (model.getStatus()) {
+        switch (model.getState()) {
             case 0:
                 setListeningStatus(false);
                 setActiveStatus(false);
@@ -196,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIF_CHAN);
-        switch (state.getStatus()) {
+        switch (state.getState()) {
             case 0:
                 notificationManager.cancel(NOTIF_ID);
                 break;

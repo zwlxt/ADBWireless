@@ -16,7 +16,7 @@ public class ADBState implements Serializable {
 
     private int port;
 
-    public int getStatus() {
+    public int getState() {
         return status;
     }
 
