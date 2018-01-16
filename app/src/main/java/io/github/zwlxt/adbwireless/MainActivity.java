@@ -28,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private final String KEY_STATE = "ADB_STATE";
     private final String NOTIF_CHAN = "Adb status";
     private final int NOTIF_ID = 1;
-    private final int NOTIF_REQUEST_CODE = 1;
+    private final int NOTIF_CODE = 1;
+    private final int NOTIF_CODE_CLOSE = 2;
     private final String NOTIF_ACTION_CLOSE = "action_close";
     private ADBState savedState;
 
@@ -204,25 +205,25 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, MainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                        NOTIF_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        NOTIF_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setContentIntent(pendingIntent)
                         .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                         .setContentTitle(getString(R.string.adb_is_running))
                         .setContentText(String.format(Locale.getDefault(),
                                 "at %s:%d", state.getAddress(), state.getPort()))
                         .setOngoing(true)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                        .setPriority(NotificationCompat.PRIORITY_LOW);
 
                 Intent closeIntent = new Intent(this, MainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         .putExtra(NOTIF_ACTION_CLOSE, true);
                 PendingIntent closePendingIntent = PendingIntent.getActivity(this,
-                        NOTIF_REQUEST_CODE, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        NOTIF_CODE_CLOSE, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.addAction(R.drawable.ic_close_black_24dp, "Close", closePendingIntent);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN,
-                            NotificationManager.IMPORTANCE_DEFAULT);
+                            NotificationManager.IMPORTANCE_LOW);
                     notificationManager.createNotificationChannel(channel);
                 }
                 Notification notification = builder.build();
