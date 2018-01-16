@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, MainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                        NOTIF_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                        NOTIF_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setContentIntent(pendingIntent)
                         .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                         .setContentTitle(getString(R.string.adb_is_running))
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         .putExtra(NOTIF_ACTION_CLOSE, true);
                 PendingIntent closePendingIntent = PendingIntent.getActivity(this,
-                        NOTIF_REQUEST_CODE, closeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                        NOTIF_REQUEST_CODE, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.addAction(R.drawable.ic_close_black_24dp, "Close", closePendingIntent);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
