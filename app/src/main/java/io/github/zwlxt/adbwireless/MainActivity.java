@@ -63,8 +63,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             ADBState adbState = (ADBState) savedInstanceState.getSerializable(KEY_STATE);
-            savedState = adbState;
-            updateView(adbState);
+            if (adbState != null) {
+                savedState = adbState;
+                updateView(adbState);
+            } else
+                updateStatus();
         } else
             updateStatus();
     }
