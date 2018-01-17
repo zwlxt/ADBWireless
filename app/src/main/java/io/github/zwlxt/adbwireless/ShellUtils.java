@@ -15,6 +15,7 @@ public class ShellUtils {
 
     /**
      * Execute command
+     *
      * @param command command and argument
      * @return true when success
      */
@@ -31,6 +32,7 @@ public class ShellUtils {
 
     /**
      * Execute command and read output
+     *
      * @param command command and argument
      * @return output
      */

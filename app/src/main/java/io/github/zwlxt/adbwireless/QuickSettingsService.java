@@ -2,12 +2,11 @@ package io.github.zwlxt.adbwireless;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Binder;
+import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.IBinder;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -17,11 +16,21 @@ import android.widget.Toast;
 @TargetApi(Build.VERSION_CODES.N)
 public class QuickSettingsService extends TileService {
 
-    private TileServiceBinder tileServiceBinder = new TileServiceBinder();
+    private static final String TAG = "QuickSettingsService";
+    public static final String PREF_TILE_STATE = "TILE_STATE";
 
     @Override
     public void onTileAdded() {
         setState(false);
+    }
+
+    @Override
+    public void onStartListening() {
+        // get state from shared preference
+        Log.d(TAG, "onStartListening");
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+        boolean state = sharedPreferences.getBoolean(PREF_TILE_STATE, false);
+        setState(state);
     }
 
     @Override
@@ -34,32 +43,23 @@ public class QuickSettingsService extends TileService {
             return;
         }
         if (state.getState() == 0) {
-            ADBUtils.start(state.getPort());
+//            ADBUtils.start(state.getPort());
             setState(false);
+            Log.d(TAG, "onClick: start");
         } else {
-            ADBUtils.stop();
+//            ADBUtils.stop();
             setState(true);
+            Log.d(TAG, "onClick: stop");
         }
     }
 
     private void setState(boolean state) {
         Tile tile = getQsTile();
         if (state) {
-            tile.setState(Tile.STATE_INACTIVE);
-        } else {
             tile.setState(Tile.STATE_ACTIVE);
+        } else {
+            tile.setState(Tile.STATE_INACTIVE);
         }
         tile.updateTile();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return tileServiceBinder;
-    }
-
-    public class TileServiceBinder extends Binder {
-        public void setState(boolean state) {
-            QuickSettingsService.this.setState(state);
-        }
     }
 }

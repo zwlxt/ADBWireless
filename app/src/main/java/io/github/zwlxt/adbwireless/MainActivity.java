@@ -7,11 +7,11 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.service.quicksettings.TileService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private final int NOTIF_CODE_CLOSE = 2;
     private final String NOTIF_ACTION_CLOSE = "action_close";
     private ADBState savedState;
-    private QuickSettingsService.TileServiceBinder tileService;
+    private SharedPreferences sharedPreferences;
 
     @BindView(R.id.textview_listneing_status)
     TextView textViewListeningStatus;
@@ -55,17 +55,6 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.button_start_stop)
     Button buttonAction;
 
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            tileService = (QuickSettingsService.TileServiceBinder) service;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            tileService = null;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
+        sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+
         if (savedInstanceState != null) {
             ADBState adbState = (ADBState) savedInstanceState.getSerializable(KEY_STATE);
             if (adbState != null) {
@@ -89,13 +80,6 @@ public class MainActivity extends AppCompatActivity {
             updateStatus();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent serviceIntent = new Intent(this, QuickSettingsService.class);
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
     private void setListeningStatus(boolean status) {
         if (status) {
             textViewListeningStatus.setText(R.string.yes);
@@ -103,16 +87,12 @@ public class MainActivity extends AppCompatActivity {
 
             buttonAction.setText(R.string.stop_adb);
             buttonAction.setOnClickListener(v -> controlADB(false));
-
-            tileService.setState(false);
         } else {
             textViewListeningStatus.setText(R.string.no);
             textViewListeningStatus.setTextColor(Color.RED);
 
             buttonAction.setText(R.string.start_adb);
             buttonAction.setOnClickListener(v -> controlADB(true));
-
-            tileService.setState(true);
         }
     }
 
@@ -153,22 +133,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) notificationManager.cancel(NOTIF_ID);
-    }
-
     @OnClick(R.id.button_refresh)
     public void updateStatus() {
         new Thread(() -> {
             ADBState state = ADBUtils.getState(MainActivity.this);
             savedState = state;
             setNotification(state);
+            updateTileState(state.getState());
+            TileService.requestListeningState(MainActivity.this,
+                    new ComponentName(MainActivity.this, QuickSettingsService.class));
             runOnUiThread(() -> updateView(state));
         }).start();
+    }
+
+    private void updateTileState(int state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (state == 0) {
+            editor.putBoolean(QuickSettingsService.PREF_TILE_STATE, false);
+        } else {
+            editor.putBoolean(QuickSettingsService.PREF_TILE_STATE, true);
+        }
+        editor.apply();
     }
 
     private int getDefinedPort() {
