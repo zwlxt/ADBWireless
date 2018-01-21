@@ -43,18 +43,25 @@ public class QuickSettingsService extends TileService {
             return;
         }
         if (state.getState() == 0) {
-//            ADBUtils.start(state.getPort());
-            setState(false);
+            // on
+            ADBUtils.start(state.getPort());
+            setState(true);
             Log.d(TAG, "onClick: start");
         } else {
-//            ADBUtils.stop();
-            setState(true);
+            // off
+            ADBUtils.stop();
+            setState(false);
             Log.d(TAG, "onClick: stop");
         }
     }
 
     private void setState(boolean state) {
         Tile tile = getQsTile();
+        SharedPreferences sharedPreferences
+                = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+        sharedPreferences.edit()
+                .putBoolean(PREF_TILE_STATE, state)
+                .apply();
         if (state) {
             tile.setState(Tile.STATE_ACTIVE);
         } else {
