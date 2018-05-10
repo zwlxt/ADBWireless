@@ -6,8 +6,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +21,7 @@ public class InfoDialog extends AppCompatActivity {
     private TextView textActiveStatus;
     private TextView textAddress;
     private EditText editPort;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class InfoDialog extends AppCompatActivity {
         textActiveStatus = findViewById(R.id.textview_active_status);
         textAddress = findViewById(R.id.textview_address);
         editPort = findViewById(R.id.edit_port);
+        progressBar = findViewById(R.id.progressBar);
         Button buttonSave = findViewById(R.id.button_save_settings);
 
         buttonSave.setOnClickListener(v -> {
@@ -58,9 +62,13 @@ public class InfoDialog extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        progressBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
             ADBState adbState = ADBUtils.getState(this);
-            runOnUiThread(() -> setADBState(adbState));
+            runOnUiThread(() -> {
+                setADBState(adbState);
+                progressBar.setVisibility(View.INVISIBLE);
+            });
         }).start();
     }
 

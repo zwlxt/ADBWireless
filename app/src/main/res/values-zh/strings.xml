@@ -3,10 +3,6 @@
     <string name="app_name">ADB Over the Air</string>
     <string name="yes">是</string>
     <string name="no">否</string>
-    <string name="instruction_off">连接到WiFi后按下启动按钮</string>
-    <string name="instruction_on">在电脑上运行以下命令\n adb connect %s:%d</string>
-    <string name="stop_adb">关闭ADB</string>
-    <string name="start_adb">启动ADB</string>
     <string name="listening">监听中</string>
     <string name="active">活动中</string>
     <string name="address">地址</string>
@@ -17,4 +13,5 @@
     <string name="at_address">正在监听 %s:%d</string>
     <string name="next_time">设置将在下次生效</string>
     <string name="restart">重启</string>
+    <string name="save">保存</string>
 </resources>
