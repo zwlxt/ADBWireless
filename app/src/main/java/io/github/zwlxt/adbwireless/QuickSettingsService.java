@@ -30,8 +30,11 @@ public class QuickSettingsService extends TileService {
     private final int NOTIF_ID = 1;
     private final int NOTIF_CODE_INFO = 1;
     private final int NOTIF_CODE_CLOSE = 2;
+    private final int NOTIF_CODE_RESTART = 3;
     private final String NOTIF_ACTION_CLOSE = "action_close";
+    private final String NOTIF_ACTION_RESTART = "action_restart";
     private ADBState adbState;
+    private int port;
 
     @Override
     public void onTileAdded() {
@@ -54,6 +57,10 @@ public class QuickSettingsService extends TileService {
 
     @Override
     public void onClick() {
+        controlADB(getTileState() != Tile.STATE_ACTIVE);
+    }
+
+    private void controlADB(boolean newState) {
         Context context = getApplicationContext();
         adbState = ADBUtils.getState(context);
         if (!adbState.isConnectedToWifi()) {
@@ -61,17 +68,11 @@ public class QuickSettingsService extends TileService {
                     .show();
             return;
         }
-        controlADB(getTileState() != Tile.STATE_ACTIVE);
 
-    }
-
-    private void controlADB(boolean newState) {
-        if (adbState == null) {
-            return;
-        }
         SharedPreferences sharedPreferences
                 = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-        int port = sharedPreferences.getInt(PREF_PORT, 5555);
+        port = sharedPreferences.getInt(PREF_PORT, 5555);
+
         if (newState) {
             // on
             ADBUtils.start(port);
@@ -123,16 +124,21 @@ public class QuickSettingsService extends TileService {
                 .setSmallIcon(R.drawable.ic_developer_mode_black_24dp)
                 .setContentTitle(getString(R.string.adb_is_running))
                 .setContentText(String.format(Locale.getDefault(),
-                        getString(R.string.at_address), state.getAddress(), state.getPort()))
+                        getString(R.string.at_address), state.getAddress(), port))
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW);
 
         Intent closeIntent = new Intent(this, QuickSettingsService.class)
-                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra(NOTIF_ACTION_CLOSE, true);
         PendingIntent closePendingIntent = PendingIntent.getService(this,
                 NOTIF_CODE_CLOSE, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.addAction(R.drawable.ic_close_black_24dp, getString(R.string.close), closePendingIntent);
+
+        Intent restartIntent = new Intent(this, QuickSettingsService.class)
+                .putExtra(NOTIF_ACTION_CLOSE, true);
+        PendingIntent restartPendingIntent = PendingIntent.getService(this,
+                NOTIF_CODE_CLOSE, restartIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.addAction(R.drawable.ic_refresh_black_24dp, getString(R.string.restart), restartPendingIntent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(NOTIF_CHAN, NOTIF_CHAN,
