@@ -13,4 +13,8 @@
     <string name="dots">…</string>
     <string name="wifi_not_connected">WiFi is not connected</string>
     <string name="adb_is_running">ADB is running</string>
+    <string name="close">Close</string>
+    <string name="at_address">at %s:%d</string>
+    <string name="next_time">Will be applied next time</string>
+    <string name="restart">Restart</string>
 </resources>

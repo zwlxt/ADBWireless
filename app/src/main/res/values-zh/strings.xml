@@ -13,4 +13,8 @@
     <string name="port">端口</string>
     <string name="wifi_not_connected">未连接WiFi</string>
     <string name="adb_is_running">ADB正在运行</string>
+    <string name="close">关闭</string>
+    <string name="at_address">正在监听 %s:%d</string>
+    <string name="next_time">设置将在下次生效</string>
+    <string name="restart">重启</string>
 </resources>
