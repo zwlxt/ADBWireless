@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ADB Over the Air</string>
+    <string name="app_name" translatable="false">QS ADB</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="listening">Listening</string>
