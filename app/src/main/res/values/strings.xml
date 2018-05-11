@@ -6,7 +6,7 @@
     <string name="active">Active</string>
     <string name="address">Address</string>
     <string name="port">Port</string>
-    <string name="dots">…</string>
+    <string name="dots" translatable="false">…</string>
     <string name="wifi_not_connected">WiFi is not connected</string>
     <string name="adb_is_running">ADB is running</string>
     <string name="close">Close</string>
