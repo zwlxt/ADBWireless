@@ -43,7 +43,6 @@ public class QuickSettingsService extends TileService {
 
     @Override
     public void onStartListening() {
-
     }
 
     @Override
@@ -57,10 +56,6 @@ public class QuickSettingsService extends TileService {
 
     @Override
     public void onClick() {
-        controlADB(getTileState() != Tile.STATE_ACTIVE);
-    }
-
-    private void controlADB(boolean newState) {
         Context context = getApplicationContext();
         adbState = ADBUtils.getState(context);
         if (!adbState.isConnectedToWifi()) {
@@ -68,7 +63,10 @@ public class QuickSettingsService extends TileService {
                     .show();
             return;
         }
+        controlADB(adbState.getState() == 0);
+    }
 
+    private void controlADB(boolean newState) {
         SharedPreferences sharedPreferences
                 = getSharedPreferences(getPackageName(), MODE_PRIVATE);
         port = sharedPreferences.getInt(PREF_PORT, 5555);
@@ -135,9 +133,9 @@ public class QuickSettingsService extends TileService {
         builder.addAction(R.drawable.ic_close_black_24dp, getString(R.string.close), closePendingIntent);
 
         Intent restartIntent = new Intent(this, QuickSettingsService.class)
-                .putExtra(NOTIF_ACTION_CLOSE, true);
+                .putExtra(NOTIF_ACTION_RESTART, true);
         PendingIntent restartPendingIntent = PendingIntent.getService(this,
-                NOTIF_CODE_CLOSE, restartIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                NOTIF_CODE_RESTART, restartIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.addAction(R.drawable.ic_refresh_black_24dp, getString(R.string.restart), restartPendingIntent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
