@@ -5,9 +5,6 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * Created by Hex on 2018/1/3.
- */
 
 public class ShellUtils {
 
@@ -53,5 +50,15 @@ public class ShellUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static boolean execute(String ...commands) {
+        for (String command : commands) {
+            boolean result = execute(command);
+            if (!result) {
+                return false;
+            }
+        }
+        return true;
     }
 }
