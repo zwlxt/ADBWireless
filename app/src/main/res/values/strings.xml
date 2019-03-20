@@ -14,4 +14,6 @@
     <string name="next_time">Will be applied next time</string>
     <string name="restart">Restart</string>
     <string name="save">Save</string>
+    <string name="settings_helper_text_saved">Saved</string>
+    <string name="settings_error_text_illegal">Illegal port number</string>
 </resources>

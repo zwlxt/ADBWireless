@@ -13,4 +13,6 @@
     <string name="next_time">设置将在下次生效</string>
     <string name="restart">重启</string>
     <string name="save">保存</string>
+    <string name="settings_helper_text_saved">已保存</string>
+    <string name="settings_error_text_illegal">不是合适的端口数字</string>
 </resources>
