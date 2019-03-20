@@ -13,7 +13,7 @@ object WifiUtil {
     fun getIpAddressString(): String? {
         for (networkInterface in NetworkInterface.getNetworkInterfaces()) {
             for (addr in networkInterface.inetAddresses) {
-                if (!addr.isLinkLocalAddress && addr is Inet4Address) {
+                if (!addr.isLinkLocalAddress && !addr.isLoopbackAddress && addr is Inet4Address) {
                     return addr.hostAddress
                 }
             }
