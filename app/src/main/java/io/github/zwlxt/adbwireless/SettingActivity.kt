@@ -1,18 +1,17 @@
 package io.github.zwlxt.adbwireless
 
+import android.content.ComponentName
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.service.quicksettings.TileService
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import java.lang.NumberFormatException
-import java.net.ContentHandler
 
 class SettingActivity : AppCompatActivity() {
 
-    lateinit var textInputLayout: TextInputLayout
+    private lateinit var textInputLayout: TextInputLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +23,8 @@ class SettingActivity : AppCompatActivity() {
 
         val preferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
 
-        val port = preferences.getInt(WirelessAdbTileService.PREF_KEY_PORT, 5555)
-        editPort.setText(port.toString())
+        val portPreference = preferences.getInt(WirelessAdbTileService.PREF_KEY_PORT, 5555)
+        editPort.setText(portPreference.toString())
 
         buttonSave.setOnClickListener{
             try {
@@ -38,15 +37,18 @@ class SettingActivity : AppCompatActivity() {
                         .putInt(WirelessAdbTileService.PREF_KEY_PORT, port)
                         .apply()
                 textInputLayout.isHelperTextEnabled = true
-                textInputLayout.helperText = "Saved"
+                textInputLayout.helperText = getString(R.string.settings_helper_text_saved)
             } catch (e: NumberFormatException) {
                 handleIllegalPortNumber()
             }
         }
+
+        TileService.requestListeningState(this,
+                ComponentName(this, WirelessAdbTileService::class.java))
     }
 
     private fun handleIllegalPortNumber() {
         textInputLayout.isErrorEnabled = true
-        textInputLayout.error = "Illegal port number"
+        textInputLayout.error = getString(R.string.settings_error_text_illegal)
     }
 }
